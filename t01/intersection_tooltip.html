@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Intersection Tooltip venn.js example</title>
+<style>
+body {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+    <div id="venn"></div>
+</body>
+
+<style>
+.venntooltip {
+  position: absolute;
+  text-align: center;
+  width: 128px;
+  height: 16px;
+  background: #333;
+  color: #ddd;
+  padding: 2px;
+  border: 0px;
+  border-radius: 8px;
+  opacity: 0;
+}
+</style>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="venn.js"></script>
+
+
+<script>
+var sets = [
+            {sets: ["Arroz"], size: 7000, label:"  Arroz : Total (7000)  A = [3900] "},
+            {sets: ["Banana"], size: 4100, label:"Banana: Total (4100)\r\n B = [1400]"},
+            {sets: ["Uva"], size: 3100, label:"Uva: Total (3100)\r\n U = [1100]"},
+            {sets: ["Arroz", "Banana"], size: 2100, label:"A + B = [1700]"},
+            {sets: ["Arroz","Uva"], size: 1400, label:"A + U = [1000]"},
+            {sets: ["Banana","Uva"], size: 1000, label:"B + U = [600]"},
+            {sets: ["Arroz","Banana","Uva"], size: 400, label:"A + B + U = [400]"}
+    ];
+
+var chart = venn.VennDiagram()
+                 .width(500)
+                 .height(500);
+
+var div = d3.select("#venn")
+div.datum(sets).call(chart);
+
+<!--var tooltip = d3.select("body").append("div")-->
+<!--    .attr("class", "venntooltip");-->
+
+div.selectAll("path")
+    .style("stroke-opacity", 0)
+    .style("stroke", "#fff")
+    .style("stroke-width", 3)
+div.selectAll('g')
+  .attr('cx', function(d, i) {
+    console.log(d);
+    return i * 100;
+  });
+
+div.selectAll("g")
+    .on("mouseover", function(d, i) {
+    var tooltip = d3.select("body").append("div")
+    .attr("class", "venntooltip");
+        // sort all the areas relative to the current item
+        venn.sortAreas(div, d);
+
+        // Display a tooltip with the current size
+        tooltip.transition().style("opacity", .9);
+        tooltip.text(d.size );
+
+        // highlight the current path
+        var selection = d3.select(this).transition("tooltip").duration(40000000);
+        console.log(div);
+        selection.select("path")
+            .style("fill-opacity", d.sets.length == 1 ? .4 : .1)
+            .style("stroke-opacity", 1);
+             tooltip.style("left", (div.offsetLeft) + "px")
+               .style("top", (div.offsetTop - 28) + "px");
+    });
+
+
+
+<!--    .on("mouseout", function(d, i) {-->
+<!--        tooltip.transition().duration(400).style("opacity", 0);-->
+<!--        var selection = d3.select(this).transition("tooltip").duration(400000000000000);-->
+<!--        selection.select("path")-->
+<!--            .style("fill-opacity", d.sets.length == 1 ? .25 : .0)-->
+<!--            .style("stroke-opacity", 0);-->
+<!--    });-->
+</script>
+</html>
